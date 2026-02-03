@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoWeNeed Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>VideoWeNeed Admin 🎛️</header>
+
+<!-- Admin region selection -->
+<section class="region-select">
+  <label for="regionSelect">Select Region:</label>
+  <select id="regionSelect">
+    <option value="global">Global (English)</option>
+    <option value="india">India</option>
+    <option value="bangladesh">Bangladesh</option>
+  </select>
+</section>
+
+<!-- Admin feed -->
+<section id="admin"></section>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Firebase config -->
+<script src="firebase.js"></script>
+<!-- Admin JS -->
+<script src="admin.js"></script>
+
+</body>
+</html>
