@@ -1,6 +1,6 @@
-// firebase.js
+// js/firebase.js
 
-// Your Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCV3oHW4Y2c_fIrkiG41p0s4x5sISn8lIg",
   authDomain: "archive-site-2026.firebaseapp.com",
@@ -13,11 +13,14 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Firebase Auth & Firestore references
-const auth = firebase.auth();
+// Firestore reference
 const db = firebase.firestore();
 
-// Sign in users anonymously
-auth.signInAnonymously()
-  .then(() => console.log("Signed in anonymously"))
-  .catch(err => console.error("Auth error:", err));
+// Optional: enable anonymous auth for future features
+firebase.auth().signInAnonymously()
+  .then(() => {
+    console.log("Signed in anonymously");
+  })
+  .catch((error) => {
+    console.error("Anonymous sign-in error:", error);
+  });
