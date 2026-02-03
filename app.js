@@ -1,118 +1,111 @@
-// app.js
+// js/app.js
 
-// Banned words per region
-const bannedWords = {
-  global: ["porn","sex","kill","suicide","terror","bomb","murder"],
-  india: ["sex","murder","suicide","bomba"],
-  bangladesh: ["sex","murder","suicide","bomba"]
-};
-
-// Get HTML elements
-const titleInput = document.getElementById("title");
-const descInput = document.getElementById("desc");
-const creatorInput = document.getElementById("creator");
-const categorySelect = document.getElementById("category");
+const feedContainer = document.getElementById("feed");
 const regionSelect = document.getElementById("region");
-const ideasContainer = document.getElementById("ideas");
 
-// Simple SHA-256 hash function for duplicate detection
-async function sha256(message) {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+let region = regionSelect.value;
+let lastVisible = null;
+let loading = false;
+const batchSize = 10;
 
-// Submit a new idea
-async function submitIdea() {
-  const regionVal = regionSelect.value;
-  const titleVal = titleInput.value.trim();
-  const descVal = descInput.value.trim();
-  const creatorVal = creatorInput.value.trim();
-  const categoryVal = categorySelect.value;
+// Load posts batch
+async function loadPosts() {
+  if (loading) return;
+  loading = true;
 
-  if (!titleVal || !descVal || !categoryVal) {
-    alert("Please fill title, description, and select a category.");
+  const postsRef = db.collection("ideas").doc(region).collection("posts")
+    .orderBy("timestamp", "desc");
+
+  let query = postsRef.limit(batchSize);
+
+  if (lastVisible) {
+    query = query.startAfter(lastVisible);
+  }
+
+  const snapshot = await query.get();
+
+  if (snapshot.empty && !lastVisible) {
+    feedContainer.innerHTML = `
+      <div class="no-posts">
+        <h3>No ideas yet!</h3>
+        <p>Be the first to submit an idea 💡</p>
+        <a href="idea.html" class="submit-link">Write an Idea</a>
+      </div>
+    `;
+    loading = false;
     return;
   }
 
-  const uniqueHash = await sha256(titleVal + descVal);
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if(data.hidden) return; // skip hidden posts
 
-  // Check banned words
-  const flagged = bannedWords[regionVal].some(word =>
-    (titleVal + " " + descVal).toLowerCase().includes(word)
-  );
+    const card = document.createElement("div");
+    card.classList.add("card");
 
-  const ideaCollection = db.collection("ideas").doc(regionVal).collection("posts");
+    card.innerHTML = `
+      <span class="category">${data.category}</span>
+      <h3>${data.title}</h3>
+      <p>${data.desc}</p>
+      <small>Suggested Creator: ${data.creator || "Any"}</small>
+      <div style="margin-top:8px;">
+        <button class="vote-btn">👍 ${data.votes || 0}</button>
+        <button class="report-btn">⚠️ Report</button>
+      </div>
+    `;
 
-  // Check for duplicates
-  const duplicateCheck = await ideaCollection.where("uniqueHash","==",uniqueHash).get();
-  if (!duplicateCheck.empty) {
-    alert("This idea has already been submitted!");
-    return;
-  }
-
-  // Add the idea
-  ideaCollection.add({
-    title: titleVal,
-    desc: descVal,
-    creator: creatorVal,
-    category: categoryVal,
-    votes: 0,
-    flagged: flagged,
-    hidden: flagged, // automatically hide if banned word detected.
-    reported: false,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    uniqueHash: uniqueHash
-  });
-
-  // Clear form
-  titleInput.value = "";
-  descInput.value = "";
-  creatorInput.value = "";
-  categorySelect.value = "";
-}
-
-// Load ideas for selected region
-function loadIdeas() {
-  const regionVal = regionSelect.value;
-  const ideaCollection = db.collection("ideas").doc(regionVal).collection("posts").orderBy("votes","desc");
-
-  ideaCollection.onSnapshot(snapshot => {
-    ideasContainer.innerHTML = "";
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      if(d.hidden) return; // skip hidden posts
-
-      ideasContainer.innerHTML += `
-        <div class="idea">
-          <span class="idea-category">${d.category}</span>
-          <h3>${d.title}</h3>
-          <p>${d.desc}</p>
-          <small>Suggested for: ${d.creator || "Any"}</small><br>
-          <button class="vote" onclick="vote('${regionVal}','${doc.id}')">👍 ${d.votes}</button>
-          <button class="report" onclick="report('${regionVal}','${doc.id}')">🚩 Report</button>
-        </div>
-      `;
+    // Vote button
+    card.querySelector(".vote-btn").addEventListener("click", async () => {
+      await doc.ref.update({ votes: (data.votes || 0) + 1 });
     });
+
+    // Report button
+    card.querySelector(".report-btn").addEventListener("click", async () => {
+      await doc.ref.update({ reported: true });
+      alert("Post reported!");
+    });
+
+    feedContainer.appendChild(card);
   });
+
+  if(snapshot.docs.length > 0){
+    lastVisible = snapshot.docs[snapshot.docs.length -1];
+  }
+
+  loading = false;
 }
 
-// Vote function (increments votes)
-function vote(region,id) {
-  const ref = db.collection("ideas").doc(region).collection("posts").doc(id);
-  ref.update({ votes: firebase.firestore.FieldValue.increment(1) });
-}
+// Infinite scroll
+window.addEventListener("scroll", () => {
+  if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+    loadPosts();
+  }
+});
 
-// Report function (marks post as reported)
-function report(region,id) {
-  const ref = db.collection("ideas").doc(region).collection("posts").doc(id);
-  ref.update({ reported: true });
-  alert("This post has been reported!");
-}
-
-// Event listener for region change
-regionSelect.addEventListener("change", loadIdeas);
+// Region change
+regionSelect.addEventListener("change", () => {
+  region = regionSelect.value;
+  lastVisible = null;
+  feedContainer.innerHTML = ""; // clear feed
+  loadPosts();
+});
 
 // Initial load
-loadIdeas();
+loadPosts();
+
+// Real-time vote updates (optional)
+db.collectionGroup("posts").onSnapshot(snapshot => {
+  snapshot.docChanges().forEach(change => {
+    if(change.type === "modified"){
+      const data = change.doc.data();
+      const cards = document.querySelectorAll(".card");
+      cards.forEach(card => {
+        const title = card.querySelector("h3").innerText;
+        if(title === data.title){
+          const voteBtn = card.querySelector(".vote-btn");
+          voteBtn.innerText = `👍 ${data.votes || 0}`;
+        }
+      });
+    }
+  });
+});
