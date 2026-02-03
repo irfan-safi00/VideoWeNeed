@@ -1,53 +1,81 @@
-// admin.js
+// js/admin.js
 
-const regionSelect = document.getElementById("regionSelect");
-const adminContainer = document.getElementById("admin");
+const regionSelect = document.getElementById("region");
+const adminFeed = document.getElementById("admin-feed");
 
-// Load flagged and reported posts for selected region
-function loadAdminPosts() {
-  const regionVal = regionSelect.value;
-  const ideaCollection = db.collection("ideas").doc(regionVal).collection("posts")
+const freezeStatusEl = document.getElementById("freeze-status");
+const freezeBtn = document.getElementById("freeze-btn");
+const unfreezeBtn = document.getElementById("unfreeze-btn");
+
+const settingsRef = db.collection("settings").doc("site");
+
+// --- Load site freeze status ---
+settingsRef.onSnapshot(doc => {
+  if (!doc.exists) return;
+  const data = doc.data();
+  freezeStatusEl.innerText = data.freezeActive ? "Frozen" : "Active";
+});
+
+// Freeze / Unfreeze buttons
+freezeBtn.addEventListener("click", () => {
+  settingsRef.set({ freezeActive: true });
+  alert("Site frozen");
+});
+unfreezeBtn.addEventListener("click", () => {
+  settingsRef.set({ freezeActive: false });
+  alert("Site active");
+});
+
+// --- Load flagged/reported posts ---
+async function loadPosts(region) {
+  adminFeed.innerHTML = "<p style='text-align:center;'>Loading...</p>";
+  const postsRef = db.collection("ideas").doc(region).collection("posts")
     .orderBy("timestamp","desc");
 
-  ideaCollection.onSnapshot(snapshot => {
-    adminContainer.innerHTML = "";
+  postsRef.onSnapshot(snapshot => {
+    adminFeed.innerHTML = "";
+    if(snapshot.empty){
+      adminFeed.innerHTML = "<p style='text-align:center;'>No flagged or reported posts</p>";
+      return;
+    }
+
     snapshot.forEach(doc => {
-      const d = doc.data();
+      const data = doc.data();
+      if(!data.flagged && !data.reported) return; // only show flagged/reported
 
-      // Only show flagged or reported posts
-      if (!d.flagged && !d.reported) return;
+      const card = document.createElement("div");
+      card.classList.add("card");
 
-      adminContainer.innerHTML += `
-        <div class="idea">
-          <span class="idea-category">${d.category}</span>
-          <h3>${d.title}</h3>
-          <p>${d.desc}</p>
-          <small>Suggested for: ${d.creator || "Any"} | Votes: ${d.votes}</small><br>
-          <small>Flagged: ${d.flagged} | Reported: ${d.reported}</small><br>
-          <button class="approve" onclick="approve('${regionVal}','${doc.id}')">✅ Approve</button>
-          <button class="delete" onclick="remove('${regionVal}','${doc.id}')">🗑️ Delete</button>
+      card.innerHTML = `
+        <span class="category">${data.category}</span>
+        <h3>${data.title}</h3>
+        <p>${data.desc}</p>
+        <small>Suggested Creator: ${data.creator || "Any"}</small>
+        <div style="margin-top:8px;">
+          <button class="approve-btn">Approve</button>
+          <button class="delete-btn">Delete</button>
         </div>
       `;
+
+      // Approve
+      card.querySelector(".approve-btn").addEventListener("click", () => {
+        doc.ref.update({ flagged: false, reported: false, hidden: false });
+      });
+
+      // Delete
+      card.querySelector(".delete-btn").addEventListener("click", () => {
+        doc.ref.delete();
+      });
+
+      adminFeed.appendChild(card);
     });
   });
 }
 
-// Approve a post (unhide flagged posts)
-function approve(region, id) {
-  const ref = db.collection("ideas").doc(region).collection("posts").doc(id);
-  ref.update({ hidden: false, flagged: false, reported: false });
-}
-
-// Delete a post permanently
-function remove(region, id) {
-  if (confirm("Are you sure you want to delete this post?")) {
-    const ref = db.collection("ideas").doc(region).collection("posts").doc(id);
-    ref.delete();
-  }
-}
-
-// Event listener for region selection
-regionSelect.addEventListener("change", loadAdminPosts);
+// Load posts on region change
+regionSelect.addEventListener("change", () => {
+  loadPosts(regionSelect.value);
+});
 
 // Initial load
-loadAdminPosts();
+loadPosts(regionSelect.value);
