@@ -60,7 +60,7 @@ async function submitIdea() {
     category: categoryVal,
     votes: 0,
     flagged: flagged,
-    hidden: flagged, // automatically hide if banned word detected
+    hidden: flagged, // automatically hide if banned word detected.
     reported: false,
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     uniqueHash: uniqueHash
