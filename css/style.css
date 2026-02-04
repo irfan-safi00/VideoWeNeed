@@ -1,0 +1,241 @@
+/* ---------------- Reset & Base ---------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: #0b0f1a;
+  color: #e5e7eb;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ---------------- Header ---------------- */
+header {
+  background-color: #12182b;
+  padding: 16px;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #6cf2c2;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ---------------- Region Selector ---------------- */
+.region-select {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0;
+  gap: 8px;
+}
+
+.region-select label {
+  font-size: 1rem;
+  color: #e5e7eb;
+}
+
+.region-select select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: #12182b;
+  color: #e5e7eb;
+  font-size: 1rem;
+}
+
+/* ---------------- Feed Container / Cards ---------------- */
+#feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px;
+}
+
+.card {
+  background-color: #12182b;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+}
+
+.category {
+  font-size: 0.8rem;
+  color: #6cf2c2;
+  font-weight: bold;
+}
+
+.card h3 {
+  margin: 8px 0;
+  font-size: 1.2rem;
+}
+
+.card p {
+  margin: 6px 0;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.card small {
+  color: #9ca3af;
+}
+
+/* ---------------- Post Actions ---------------- */
+.post-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.post-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.vote-btn {
+  background-color: #6cf2c2;
+  color: #0b0f1a;
+}
+
+.vote-btn:hover {
+  background-color: #52c9aa;
+}
+
+.report-btn {
+  background-color: #ff6b6b;
+  color: #0b0f1a;
+}
+
+.report-btn:hover {
+  background-color: #e04848;
+}
+
+/* ---------------- Empty State ---------------- */
+.no-posts {
+  text-align: center;
+  padding: 40px;
+  color: #9ca3af;
+}
+
+.no-posts h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.no-posts p {
+  margin-bottom: 12px;
+}
+
+.no-posts .submit-link {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #6cf2c2;
+  color: #0b0f1a;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.no-posts .submit-link:hover {
+  background-color: #52c9aa;
+}
+
+/* ---------------- Floating Button ---------------- */
+.floating-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: #6cf2c2;
+  color: #0b0f1a;
+  font-size: 2rem;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 50;
+}
+
+.floating-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+}
+
+/* ---------------- Form Inputs (idea.html) ---------------- */
+input, textarea, select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: none;
+  background-color: #12182b;
+  color: #e5e7eb;
+  font-size: 1rem;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button.submit-btn {
+  background-color: #6cf2c2;
+  color: #0b0f1a;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+button.submit-btn:hover {
+  background-color: #52c9aa;
+}
+
+/* ---------------- Mobile Responsiveness ---------------- */
+@media (max-width: 600px) {
+  header {
+    font-size: 1.5rem;
+  }
+
+  .card h3 {
+    font-size: 1rem;
+  }
+
+  .card p {
+    font-size: 0.9rem;
+  }
+
+  .region-select select {
+    font-size: 0.9rem;
+  }
+
+  .floating-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.8rem;
+  }
+}
