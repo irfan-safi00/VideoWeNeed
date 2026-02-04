@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoWeNeed Admin Panel</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>🛠 Admin Panel</header>
+
+  <!-- Admin Login -->
+  <div id="login-container" class="form-container">
+    <input type="email" id="admin-email" placeholder="Admin Email" required>
+    <input type="password" id="admin-password" placeholder="Password" required>
+    <button id="login-btn" class="submit-btn">Login</button>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admin-dashboard" style="display:none; padding:12px;">
+    <h3>Site Control</h3>
+    <button id="toggle-freeze" class="submit-btn">Toggle Site Freeze</button>
+    <p id="freeze-status">Loading...</p>
+
+    <h3>All Posts</h3>
+    <div id="admin-feed"></div>
+  </div>
+
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
