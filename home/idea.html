@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoWeNeed - Submit Idea</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>💡 Submit Your Idea</header>
+
+  <div class="form-container">
+    <!-- Region Selector -->
+    <div class="region-select">
+      <label for="region">Select Region:</label>
+      <select id="region">
+        <option value="global">🌎 Global</option>
+        <option value="india">🇮🇳 India</option>
+        <option value="bangladesh">🇧🇩 Bangladesh</option>
+      </select>
+    </div>
+
+    <!-- Idea Form -->
+    <form id="ideaForm">
+      <input type="text" id="title" placeholder="Idea Title" required>
+      <textarea id="description" placeholder="Describe your idea..." required></textarea>
+      <input type="text" id="category" placeholder="Category (e.g., Tech, Health)" required>
+      <input type="text" id="creator" placeholder="Suggested Creator (optional)">
+      <button type="submit" class="submit-btn">Submit Idea</button>
+    </form>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module" src="../js/firebase.js"></script>
+  <script type="module" src="../js/idea.js"></script>
+</body>
+</html>
