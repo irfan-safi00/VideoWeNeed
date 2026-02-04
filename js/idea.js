@@ -9,26 +9,38 @@ const db = getFirestore(app);
 const ideaForm = document.getElementById("ideaForm");
 const regionSelect = document.getElementById("region");
 
-// Load region from localStorage
+// --- Region persistence ---
 let region = localStorage.getItem("region") || "global";
 regionSelect.value = region;
 
-// Save region on change
 regionSelect.addEventListener("change", () => {
   region = regionSelect.value;
   localStorage.setItem("region", region);
 });
 
-// Example banned words list (can expand)
-const bannedWords = ["nsfw", "porn", "drugs", "violence", "suicide"];
+// --- Multi-language banned words ---
+const bannedWords = [
+  // English
+  "nsfw","porn","sex","drugs","violence","suicide","kill","abuse",
+  // Spanish
+  "sexo","pornografía","violencia","droga","matar","suicidio",
+  // French
+  "sexe","pornographie","violence","drogue","tuer","suicide",
+  // German
+  "sex","pornographie","gewalt","droge","töten","selbstmord",
+  // Hindi
+  "सेक्स","पोर्न","हिंसा","नशा","हत्या","आत्महत्या",
+  // Bengali
+  "সেক্স","পর্ন","হিংসা","মাদক","হত্যা","আত্মহত্যা"
+];
 
-// Helper to check for banned words
+// --- Helper: Check banned words ---
 function containsBannedWords(text) {
   const lower = text.toLowerCase();
   return bannedWords.some(word => lower.includes(word));
 }
 
-// Submit handler
+// --- Submit Handler ---
 ideaForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -44,7 +56,7 @@ ideaForm.addEventListener("submit", async (e) => {
   }
 
   try {
-    // --- Check if site is frozen ---
+    // --- Check site freeze ---
     const settingsDoc = doc(db, "settings", "site");
     const settingsSnap = await getDoc(settingsDoc);
 
@@ -68,7 +80,7 @@ ideaForm.addEventListener("submit", async (e) => {
       return;
     }
 
-    // --- Submit to Firestore ---
+    // --- Submit idea to Firestore ---
     await addDoc(postsRef, {
       title,
       description,
@@ -83,6 +95,7 @@ ideaForm.addEventListener("submit", async (e) => {
 
     alert("Idea submitted successfully!");
     ideaForm.reset();
+
   } catch (err) {
     console.error(err);
     alert("Error submitting idea. Please try again later.");
