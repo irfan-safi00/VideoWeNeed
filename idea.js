@@ -1,4 +1,4 @@
-// js/idea.js
+ // js/idea.js
 import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp, doc, getDoc } from "firebase/firestore";
 import { getApp } from "firebase/app";
 
